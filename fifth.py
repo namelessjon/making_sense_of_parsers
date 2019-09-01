@@ -8,7 +8,8 @@ grammar = Grammar(
     """
     eqn    = expr ws add_op*
     expr   = elem ws mul_op*
-    elem   = dice / number
+    elem   = nested / dice / number
+    nested = '(' ws eqn ws ')'
     dice   = number "d" number
     add_op = ('+' / '-') ws expr ws
     mul_op = ('*' / '/') ws elem ws
@@ -23,9 +24,8 @@ class Dice:
     sides: int
 
     def roll(self) -> int:
-        rolls = [random.randint(1, self.sides) for i in range(0,self.num)]
-        print(rolls)
-        return sum(rolls)
+        rolls = [random.randint(1, self.sides) for i in range(self.num)]
+        return rolls
 
 
 class MathVisitor(NodeVisitor):
@@ -38,7 +38,8 @@ class MathVisitor(NodeVisitor):
     def visit_dice(self, node, node_children):
         number, _, sides = node_children
         dice = Dice(number, sides)
-        return dice.roll()
+        roll = dice.roll()
+        return sum(roll)
 
     def visit_expr(self, node, node_children):
         v = node_children[0]
@@ -57,6 +58,9 @@ class MathVisitor(NodeVisitor):
             elif op == "-":
                 v -= value
         return v
+
+    def visit_nested(self, node, node_children):
+        return node_children[2]
 
       #  print(node_children)
 
@@ -81,7 +85,7 @@ tree = grammar.parse("9d6")
 print(mv.visit(tree))
 # print(tree)
 
-tree = grammar.parse("9 + 5")
+tree = grammar.parse("(      (     ( 9 + 5 + (3+1)   ) )      )*2")
 print(mv.visit(tree))
 
 
@@ -100,5 +104,6 @@ print(mv.visit(tree))
 # tree = grammar.parse("9+9d6+ 5")
 # print(tree)
 
-# tree = grammar.parse("9+9d6+ 5*6")
+tree = grammar.parse("9+2d6+ 5*6")
+print(mv.visit(tree))
 # print(tree)
