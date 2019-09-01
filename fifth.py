@@ -7,7 +7,6 @@ import logging
 
 grammar = Grammar(
     """
-    ws     = ~"\s*"
     statement   = expression ws add_op*
     expression  = elem ws mul_op*
     elem        = nested / dice / number
@@ -16,6 +15,7 @@ grammar = Grammar(
     add_op      = ('+' / '-') ws expression ws
     mul_op      = ('*' / '/') ws elem ws
     number      = ~"[1-9][0-9]*"
+    ws          = (" " / "\t")*
     """
 )
 
