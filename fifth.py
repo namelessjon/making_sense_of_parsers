@@ -94,37 +94,39 @@ class MathVisitor(NodeVisitor):
        # print(node)
        #print(node_children)
 
-mv = MathVisitor()
+if __name__ == "__main__":
+
+    mv = MathVisitor()
 
 
-tree = grammar.parse("1 + 2")
-print(mv.visit(tree))
+    tree = grammar.parse("1 + 2")
+    print(mv.visit(tree))
 
 
 
-tree = grammar.parse("9d6")
-print(mv.visit(tree))
-# print(tree)
+    tree = grammar.parse("9d6")
+    print(mv.visit(tree))
+    # print(tree)
 
-tree = grammar.parse("(      (     ( 9 + 5 + (3+1)   ) )      )*2")
-print(mv.visit(tree))
+    tree = grammar.parse("(      (     ( 9 + 5 + (3+1)   ) )      )*2")
+    print(mv.visit(tree))
 
 
-tree = grammar.parse("1+2*3*4+5")
-#print(tree)
-print(mv.visit(tree))
-#print(tree)
+    tree = grammar.parse("1+2*3*4+5")
+    #print(tree)
+    print(mv.visit(tree))
+    #print(tree)
 
-tree = grammar.parse("3/4/5")
-#print(tree)
-print(mv.visit(tree))
+    tree = grammar.parse("3/4/5")
+    #print(tree)
+    print(mv.visit(tree))
 
-# tree = grammar.parse("9+9d6")
-# print(tree)
+    # tree = grammar.parse("9+9d6")
+    # print(tree)
 
-# tree = grammar.parse("9+9d6+ 5")
-# print(tree)
+    # tree = grammar.parse("9+9d6+ 5")
+    # print(tree)
 
-tree = grammar.parse("9+2d6+ 5*6")
-print(mv.visit(tree))
-# print(tree)
+    tree = grammar.parse("9+2d6+ 5*6")
+    print(mv.visit(tree))
+    # print(tree)
