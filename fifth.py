@@ -2,6 +2,7 @@ from parsimonious.grammar import Grammar
 from parsimonious.nodes import NodeVisitor
 from dataclasses import dataclass
 import random
+import logging
 
 
 grammar = Grammar(
@@ -28,20 +29,28 @@ class Dice:
         return rolls
 
 
+logger = logging.getLogger()
+logging.basicConfig(level=logging.DEBUG)
+
+
 class MathVisitor(NodeVisitor):
     def visit_number(self, node, node_children):
+        logger.debug("number: %s", node.text)
         return int(node.text)
 
     def visit_ws(self, *args):
+        logger.debug("ws")
         return None
 
     def visit_dice(self, node, node_children):
+        logger.debug("dice: %s", node.text)
         number, _, sides = node_children
         dice = Dice(number, sides)
         roll = dice.roll()
         return sum(roll)
 
     def visit_expr(self, node, node_children):
+        logger.debug("expr: %s", node.text)
         v = node_children[0]
         for (op, value) in node_children[2]:
             if op == "*":
@@ -51,6 +60,7 @@ class MathVisitor(NodeVisitor):
         return v
 
     def visit_eqn(self, node, node_children):
+        logger.debug("eqn: %s", node.text)
         v = node_children[0]
         for (op, value) in node_children[2]:
             if op == "+":
@@ -60,17 +70,21 @@ class MathVisitor(NodeVisitor):
         return v
 
     def visit_nested(self, node, node_children):
+        logger.debug("nested: %s", node.text)
         return node_children[2]
 
       #  print(node_children)
 
     def visit_elem(self, node, visited_children):
+        logger.debug("elem: %s", node.text)
         return visited_children[0]
 
     def visit_add_op(self, node, visited_children):
+        logger.debug("add_op: %s", node.text)
         return visited_children[0][0].text, visited_children[2]
 
     def visit_mul_op(self, node, visited_children):
+        logger.debug("mul_op: %s", node.text)
         return visited_children[0][0].text, visited_children[2]
 
 
@@ -80,6 +94,12 @@ class MathVisitor(NodeVisitor):
        #print(node_children)
 
 mv = MathVisitor()
+
+
+tree = grammar.parse("1 + 2")
+print(mv.visit(tree))
+
+
 
 tree = grammar.parse("9d6")
 print(mv.visit(tree))
