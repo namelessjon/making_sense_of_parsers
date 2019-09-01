@@ -7,17 +7,18 @@ import logging
 
 grammar = Grammar(
     """
-    eqn    = expr ws add_op*
-    expr   = elem ws mul_op*
-    elem   = nested / dice / number
-    nested = '(' ws eqn ws ')'
-    dice   = number "d" number
-    add_op = ('+' / '-') ws expr ws
-    mul_op = ('*' / '/') ws elem ws
-    number = ~"[1-9][0-9]*"
     ws     = ~"\s*"
+    statement   = expression ws add_op*
+    expression  = elem ws mul_op*
+    elem        = nested / dice / number
+    nested      = '(' ws statement ws ')'
+    dice        = number "d" number
+    add_op      = ('+' / '-') ws expression ws
+    mul_op      = ('*' / '/') ws elem ws
+    number      = ~"[1-9][0-9]*"
     """
 )
+
 
 @dataclass
 class Dice:
@@ -49,8 +50,8 @@ class MathVisitor(NodeVisitor):
         roll = dice.roll()
         return sum(roll)
 
-    def visit_expr(self, node, node_children):
-        logger.debug("expr: %s", node.text)
+    def visit_expression(self, node, node_children):
+        logger.debug("expression: %s", node.text)
         v = node_children[0]
         for (op, value) in node_children[2]:
             if op == "*":
@@ -59,8 +60,8 @@ class MathVisitor(NodeVisitor):
                 v /= value
         return v
 
-    def visit_eqn(self, node, node_children):
-        logger.debug("eqn: %s", node.text)
+    def visit_statement(self, node, node_children):
+        logger.debug("statement: %s", node.text)
         v = node_children[0]
         for (op, value) in node_children[2]:
             if op == "+":
