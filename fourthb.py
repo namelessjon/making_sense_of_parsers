@@ -3,19 +3,17 @@ from parsimonious.nodes import NodeVisitor
 from dataclasses import dataclass
 from random import randint
 import logging
+from functools import wraps
 
 
 grammar = Grammar(
     """
-    statement   = expression ws add_op*
-    expression  = elem ws mul_op*
-    elem        = nested / dice / number
-    nested      = '(' ws statement ws ')'
+    expression  = elem ws? add_op*
+    elem        = dice / number
     dice        = number "d" number
-    add_op      = ('+' / '-') ws expression ws
-    mul_op      = ('*' / '/') ws elem ws
+    add_op      = ('+' / '-') ws? expression ws?
     number      = ~"[1-9][0-9]*"
-    ws          = (" " / "\t")*
+    ws          = ~"[ \t]+"
     """
 )
 
@@ -29,67 +27,65 @@ class Dice:
     sides: int
 
     def roll(self) -> int:
-        log.debug("Rolling %s", self)
+        log.debug("Rolling %dd%d", self.n, self.sides)
         r = [randint(1, self.sides) for i in range(self.n)]
         log.debug("rolls: %r", r)
         return r
-
-    def __str__(self):
-        return f"{self.n}d{self.sides}"
 
 
 logger = logging.getLogger()
 logging.basicConfig(level=logging.DEBUG)
 
+def log_visitor(func):
+    @wraps(func)
+    def wrapper(self, node, *args, **kwargs):
+        log.debug("%s: %r", func.__name__, node.text)
+        return func(self, node, *args, **kwargs)
+    return wrapper
+
 from parsimonious.nodes import NodeVisitor
 
 class DiceVisitor(NodeVisitor):
     grammar = grammar
+    # other parts unchanged
+    @log_visitor
     def visit_number(self, node, visited_children):
         return int(node.text)
 
+    @log_visitor
     def visit_dice(self, node, visited_children):
         number, _, sides = visited_children
         dice = Dice(number, sides)
         roll = dice.roll()
         return sum(roll)
 
+    @log_visitor
     def generic_visit(self, node, visited_children):
         return visited_children or node
 
-    def visit_expression(self, node, node_children):
-        v = node_children[0]
-        for (op, value) in node_children[2]:
-            if op == "*":
-                v *= value
-            elif op == "/":
-                v /= value
-        return v
-
-    def visit_statement(self, node, node_children):
-        v = node_children[0]
-        for (op, value) in node_children[2]:
+    @log_visitor
+    def visit_expression(self, node, children):
+        # elem ws? add_op*
+        left, _, right = children
+        for (op, value) in right:
             if op == "+":
-                v += value
+                left += value
             elif op == "-":
-                v -= value
-        return v
+                left -= value
+        return left
 
-    def visit_nested(self, node, node_children):
-        return node_children[2]
+    @log_visitor
+    def visit_elem(self, node, children):
+        # elem / dice
+        return children[0]
 
-      #  print(node_children)
+    @log_visitor
+    def visit_add_op(self, node, children):
+        # ('+' / '-') ws? expression ws?
+        op, _, right, _ = children
+        return op[0].text, right
 
-    def visit_elem(self, node, visited_children):
-        return visited_children[0]
-
-    def visit_add_op(self, node, visited_children):
-        return visited_children[0][0].text, visited_children[2]
-
-    def visit_mul_op(self, node, visited_children):
-        return visited_children[0][0].text, visited_children[2]
-
-
+    @log_visitor
     def generic_visit(self, node, node_children):
         return node_children or node
        # print(node)
@@ -97,14 +93,8 @@ class DiceVisitor(NodeVisitor):
 
 if __name__ == "__main__":
 
-    mv = DiceVisitor()
-
-
-    print(grammar.parse("2+3*1d1+2+4+5+6"))
-    print(DiceVisitor().parse("2+3*1d1+2+4+5+6"))
-
-#     tree = grammar.parse("1 + 2")
-#    # print(mv.visit(tree))
+    mv = DiceVisitor().parse("2d6 + 3")
+    print(mv)
 
 
 
