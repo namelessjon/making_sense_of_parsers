@@ -1,5 +1,7 @@
 import argparse
 
+from parsimonious.exceptions import ParseError
+
 from .dice_visitor import DiceVisitor
 from .cmd import DiceCmd
 
@@ -22,8 +24,11 @@ If no arguments are provided, an interactive shell is started
     parsed = parser.parse_args(args)
 
     for dice in parsed.dice:
-        result = DiceVisitor().parse(dice)
-        print(f"Rolling {dice} => {result}")
+        try:
+            result = DiceVisitor().parse(dice)
+            print(f"Rolling {dice} => {result}")
+        except ParseError as e:
+            print(f"Problem parsing dice roll: {e}")
 
     if not parsed.dice:
         cmd = DiceCmd()

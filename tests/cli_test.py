@@ -20,3 +20,12 @@ def test_simple_math_works(test_input, expected, capsys):
     assert "Rolling" in stdout
     assert test_input in stdout
     assert str(expected) in stdout
+
+
+def test_error_displays_correctly(capsys):
+    from parsimonious_dice.cli import cli
+    cli(["foo"])
+
+    stdout, stderr = capsys.readouterr()
+    assert "Problem parsing dice roll" in stdout
+    assert "foo" in stdout
