@@ -4,6 +4,7 @@ import random
 
 log = logging.getLogger(__name__)
 
+
 @dataclass
 class Dice:
     n: int
