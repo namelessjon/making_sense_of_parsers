@@ -5,9 +5,11 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+flake8 = "*"
 
 [packages]
 parsimonious = "*"
+pytest-mock = "*"
 
 [requires]
 python_version = "3.7"
