@@ -1,7 +1,7 @@
 import parsimonious.grammar
 
 dice_grammar = parsimonious.grammar.Grammar(
-    """
+    r"""
     statement   = expression ws add_op*
     expression  = elem ws mul_op*
     elem        = nested / dice / number
