@@ -100,8 +100,10 @@ if __name__ == "__main__":
     mv = DiceVisitor()
 
 
-    print(grammar.parse("2+3*1d1+2+4+5+6"))
-    print(DiceVisitor().parse("2+3*1d1+2+4+5+6"))
+#    print(grammar.parse("2+3*1d1+2+4+5+6"))
+#    print(DiceVisitor().parse("2+3*1d1+2+4+5+6"))
+
+    print(grammar.parse("2d6+3"))
 
 #     tree = grammar.parse("1 + 2")
 #    # print(mv.visit(tree))
