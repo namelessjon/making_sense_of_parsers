@@ -10,5 +10,5 @@ home-page = "https://github.com/namelessjon/making_sense_of_parsers"
 requires= ["parsimonious"]
 requires-python= ">=3.7"
 
-[scripts]
-parsimonious_dice = "parsimonious_dice:cli"
+[tool.flit.scripts]
+parsimonious_dice = "parsimonious_dice.cli:cli"
