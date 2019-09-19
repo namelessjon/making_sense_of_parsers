@@ -33,10 +33,6 @@ class DiceVisitor(NodeVisitor):
         return sum(roll)
 
     @log_visit
-    def generic_visit(self, node, visited_children):
-        return visited_children or node
-
-    @log_visit
     def visit_expression(self, node, node_children):
         v = node_children[0]
         for (op, value) in node_children[2]:
